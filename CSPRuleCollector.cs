@@ -23,8 +23,8 @@ namespace FiddlerCSP
             cacheLock.EnterReadLock();
             try
             {
-                result = rules[documentUri].Select(entry => (
-                    entry.Value.Aggregate(entry.Key, (total, next) => (total + " " + next))
+                result = rules[documentUri].OrderBy(x => x.Key).Select(entry => (
+                    entry.Value.OrderBy(x => x).Aggregate(entry.Key, (total, next) => (total + " " + next))
                     )).Aggregate(prefix, (total, next) => (total + "; " + next));
             }
             finally
@@ -114,7 +114,13 @@ namespace FiddlerCSP
             return result;
         }
 
-        public void Add(CSPReport cspReport)
+        public enum InterpretBlank
+        {
+            UnsafeInline,
+            UnsafeEval
+        };
+
+        public void Add(CSPReport cspReport, InterpretBlank blankIs)
         {
             if (!(cspReport.cspReport.blockedUri == null ||
                 cspReport.cspReport.documentUri == null ||
@@ -127,7 +133,7 @@ namespace FiddlerCSP
                 if (blockedUri.Trim().Length == 0)
                 {
                     // How to handle unsafe-eval? Might require a different report-uri and rule set.
-                    blockedUri = "'unsafe-inline'";
+                    blockedUri = blankIs == InterpretBlank.UnsafeInline ? "'unsafe-inline'" : "'unsafe-eval'";
                 }
                 else if (blockedUri.IndexOf(":") >= 0)
                 {

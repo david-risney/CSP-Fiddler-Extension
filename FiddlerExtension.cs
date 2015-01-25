@@ -63,7 +63,8 @@ namespace FiddlerCSP
                             Log("Got report for " + cspReport.cspReport.documentUri);
                         }
                         Log("Adding " + cspReport.ToString());
-                        collector.Add(cspReport);
+                        collector.Add(cspReport, session.PathAndQuery == "/unsafe-eval" ? 
+                            CSPRuleCollector.InterpretBlank.UnsafeEval : CSPRuleCollector.InterpretBlank.UnsafeInline);
                         Log("Total " + collector.ToString());
 
                         handled = true;
@@ -85,8 +86,10 @@ namespace FiddlerCSP
             {
                 // Use https report URI for https sites because otherwise Chrome won't report.
                 // Use http report URI for http sites because Fiddler might not be configured to MitM https.
-                string reportUri = (session.isHTTPS ? "https" : "http") + "://" + reportHost + "/";
-                session.oResponse.headers.Add("Content-Security-Policy-Report-Only", "child-src 'none'; script-src 'none'; connect-src 'none'; font-src 'none'; frame-src 'none'; img-src 'none'; media-src 'none'; object-src 'none'; style-src 'none'; report-uri " + reportUri);
+                string reportUri = (session.isHTTPS ? "https" : "http") + "://" + reportHost;
+                string CSPROCommon = "child-src 'none'; connect-src 'none'; font-src 'none'; frame-src 'none'; img-src 'none'; media-src 'none'; object-src 'none'; style-src 'none'; ";
+                session.oResponse.headers.Add("Content-Security-Policy-Report-Only", CSPROCommon + "script-src 'unsafe-eval'; report-uri " + reportUri + "/unsafe-inline");
+                session.oResponse.headers.Add("Content-Security-Policy-Report-Only", "script-src 'unsafe-inline'; report-uri " + reportUri + "/unsafe-eval");
                 session.oResponse.headers.Add("X-Fiddled-With-By", "FiddlerCSP");
 
                 // Set cache headers to not cache response since we're modifying the headers and don't want browsers to remember this.
