@@ -58,6 +58,62 @@ namespace FiddlerCSP
             return result;
         }
 
+        private static string UriOrigin(string fullUri)
+        {
+            var uri = fullUri;
+            try
+            {
+                UriBuilder uriBuilder = new UriBuilder(fullUri);
+                uriBuilder.Password = null;
+                uriBuilder.Fragment = null;
+                uriBuilder.Path = null;
+                uriBuilder.Query = null;
+                uriBuilder.UserName = null;
+                uri = uriBuilder.Uri.AbsoluteUri;
+                if (uri.EndsWith("/"))
+                {
+                    uri = uri.Substring(0, uri.Length - 1);
+                }
+            }
+            catch (Exception)
+            {
+                // Ignore failure and just return the original URI.
+                // .NET's URI parser doesn't always match the web and we might get CSP values in 
+                // here that aren't URIs.
+            }
+            return uri;
+        }
+
+        public static string UriWrtDocumentUri(string uri, string documentUri)
+        {
+            var result = uri;
+            try
+            {
+                var uriParsed = new Uri(uri);
+                var documentUriParsed = new Uri(documentUri);
+
+                if (uriParsed.Equals(documentUriParsed))
+                {
+                    result = "'self'";
+                }
+                else if (uriParsed.Scheme == documentUriParsed.Scheme)
+                {
+                    result = uriParsed.Host;
+                    if (!(uriParsed.Port == 0 || uriParsed.IsDefaultPort))
+                    {
+                        result += ":" + uriParsed.Port;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Again we can get exceptions if the URI can't parse as a .NET URI.
+                // Pass through if we can't do anything better.
+            }
+
+            return result;
+        }
+
         public void Add(CSPReport cspReport)
         {
             if (!(cspReport.cspReport.blockedUri == null ||
@@ -65,25 +121,21 @@ namespace FiddlerCSP
                 cspReport.cspReport.effectiveDirective == null))
             {
                 string documentUri = cspReport.cspReport.documentUri;
+                string documentUriOrigin = UriOrigin(documentUri);
                 string effectiveDirective = cspReport.cspReport.effectiveDirective;
                 string blockedUri = cspReport.cspReport.blockedUri;
                 if (blockedUri.Trim().Length == 0)
                 {
+                    // How to handle unsafe-eval? Might require a different report-uri and rule set.
                     blockedUri = "'unsafe-inline'";
                 }
                 else if (blockedUri.IndexOf(":") >= 0)
                 {
-                    try
-                    {
-                        var uri = new Uri(blockedUri);
-                        blockedUri = uri.Scheme + "://" + uri.Host;
-                    }
-                    catch (Exception)
-                    {
-                    }
+                    blockedUri = UriWrtDocumentUri(UriOrigin(blockedUri), documentUriOrigin);
                 }
                 else
                 {
+                    // Report can give out schemes with no delimiters or anything else.
                     blockedUri = blockedUri + ":";
                 }
 

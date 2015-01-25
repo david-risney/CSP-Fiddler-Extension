@@ -6,12 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Fiddler;
 
-// Install requirements:
-// - copy FiddlerCSP.dll to "%userprofile%\My Documents\Fiddler2\Scripts\$(TargetFilename)"
-
-// Todo:
-// - change verboseLogging to default to false
-
 [assembly: Fiddler.RequiredVersion("4.4.9.3")]
 namespace FiddlerCSP
 {
@@ -22,7 +16,7 @@ namespace FiddlerCSP
             private const string prefix = "FiddlerCSPExtension.";
             public static bool verboseLogging
             {
-                get { return Fiddler.FiddlerApplication.Prefs.GetBoolPref(prefix + "verboseLogging", true); }
+                get { return Fiddler.FiddlerApplication.Prefs.GetBoolPref(prefix + "verboseLogging", false); }
                 set { Fiddler.FiddlerApplication.Prefs.SetBoolPref(prefix + "verboseLogging", value); }
             }
             public static bool enabled
@@ -92,7 +86,7 @@ namespace FiddlerCSP
                 // Use https report URI for https sites because otherwise Chrome won't report.
                 // Use http report URI for http sites because Fiddler might not be configured to MitM https.
                 string reportUri = (session.isHTTPS ? "https" : "http") + "://" + reportHost + "/";
-                session.oResponse.headers.Add("Content-Security-Policy-Report-Only", "connect-src 'none'; font-src 'none'; frame-src 'none'; img-src 'none'; media-src 'none'; object-src 'none'; style-src 'none'; report-uri " + reportUri);
+                session.oResponse.headers.Add("Content-Security-Policy-Report-Only", "child-src 'none'; script-src 'none'; connect-src 'none'; font-src 'none'; frame-src 'none'; img-src 'none'; media-src 'none'; object-src 'none'; style-src 'none'; report-uri " + reportUri);
                 session.oResponse.headers.Add("X-Fiddled-With-By", "FiddlerCSP");
 
                 // Set cache headers to not cache response since we're modifying the headers and don't want browsers to remember this.
