@@ -7,7 +7,7 @@ This is an extension for [Fiddler 4](http://www.telerik.com/fiddler) that helps 
 ## Install
 To install, build FiddlerCSP.dll and copy to your Documents\Fiddler2\Scripts folder. For example, start powershell.exe and run:
 
-  wget -uri http://david-risney.github.io/CSP-Fiddler-Extension/FiddlerCSP.dll -OutFile "$env:userprofile\My Documents\Fiddler2\Scripts\FiddlerCSP.dll"
+    wget -uri http://david-risney.github.io/CSP-Fiddler-Extension/FiddlerCSP.dll -OutFile "$env:userprofile\My Documents\Fiddler2\Scripts\FiddlerCSP.dll"
 
 ## Run
 After installing:
