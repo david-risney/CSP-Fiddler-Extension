@@ -2,7 +2,7 @@
 Content Security Policy rule collector extension for Fiddler.
 
 ## What's this?
-This is an extension for [Fiddler 4](http://www.telerik.com/fiddler) that helps you produce the minimal required set of [Content-Security-Policy](https://docs.webplatform.org/wiki/tutorials/content-security-policy) rules for web pages. Install the extension, turn it on, navigate to web pages, and view the CSP rules that the extension generates.
+This is an extension for [Fiddler4](http://www.telerik.com/fiddler) that helps you produce the minimal required set of [Content-Security-Policy](https://docs.webplatform.org/wiki/tutorials/content-security-policy) rules for web pages. Install the extension, turn it on, navigate to web pages, and view the CSP rules that the extension generates.
 
 ## Install
 Win+R, powershell.exe and enter the following into the PowerShell prompt:
@@ -11,7 +11,7 @@ Win+R, powershell.exe and enter the following into the PowerShell prompt:
 
 ## Run
 After installing:
- * Start Fiddler 4.
+ * Start Fiddler4.
  * Click on the 'CSP Rule Collector' tab.
  * Ensure the 'Enable Rule Collection' checkbox is checked.
  * In your web browser navigate to the page for which you want to generate CSP rules.
