@@ -9,6 +9,8 @@ Win+R, powershell.exe and enter the following into the PowerShell prompt:
 
     wget -uri http://david-risney.github.io/CSP-Fiddler-Extension/fiddlercsp.dll -OutFile "$env:userprofile\My Documents\Fiddler2\Scripts\FiddlerCSP.dll"
 
+Or if you want to put in more effort, clone this repo, build it, and copy the built FiddlerCSP.dll to your ~\My Documents\Fiddler2\Scripts directory.
+
 ## Run
 After installing:
  * Start Fiddler4.
