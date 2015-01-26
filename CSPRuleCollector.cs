@@ -124,11 +124,11 @@ namespace FiddlerCSP
         {
             if (!(cspReport.cspReport.blockedUri == null ||
                 cspReport.cspReport.documentUri == null ||
-                cspReport.cspReport.effectiveDirective == null))
+                (cspReport.cspReport.violatedDirective == null && cspReport.cspReport.effectiveDirective == null)))
             {
                 string documentUri = cspReport.cspReport.documentUri;
                 string documentUriOrigin = UriOrigin(documentUri);
-                string effectiveDirective = cspReport.cspReport.effectiveDirective;
+                string directive = cspReport.cspReport.effectiveDirective == null ? cspReport.cspReport.violatedDirective : cspReport.cspReport.effectiveDirective;
                 string blockedUri = cspReport.cspReport.blockedUri;
                 if (blockedUri.Trim().Length == 0)
                 {
@@ -139,11 +139,18 @@ namespace FiddlerCSP
                 {
                     blockedUri = UriWrtDocumentUri(UriOrigin(blockedUri), documentUriOrigin);
                 }
+                else if (blockedUri == "self") // Firefox can return self as the blocked-uri.
+                {
+                    blockedUri = "'self'";
+                }
                 else
                 {
                     // Report can give out schemes with no delimiters or anything else.
                     blockedUri = blockedUri + ":";
                 }
+
+                // directive may be script-src or script-src none. We want just the first part.
+                directive = directive.Split(' ')[0];
 
                 cacheLock.EnterWriteLock();
                 try
@@ -152,11 +159,11 @@ namespace FiddlerCSP
                     {
                         rules.Add(documentUri, new Dictionary<string, HashSet<string>>());
                     }
-                    if (!rules[documentUri].Keys.Contains(effectiveDirective))
+                    if (!rules[documentUri].Keys.Contains(directive))
                     {
-                        rules[documentUri].Add(effectiveDirective, new HashSet<string>());
+                        rules[documentUri].Add(directive, new HashSet<string>());
                     }
-                    rules[documentUri][effectiveDirective].Add(blockedUri);
+                    rules[documentUri][directive].Add(blockedUri);
                 }
                 finally
                 {
