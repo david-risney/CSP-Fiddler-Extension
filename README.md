@@ -22,4 +22,4 @@ After installing:
 
 Do not leave the 'Enable Rule Collection' checkbox checked. While checked the extension will make web responses non-cachable in your browser and injects CSP HTTP headers that will result in possibly many developer console errors.
 
-To get accurate results be sure to clear your browsers cache of any site for which you want to collect CSP rules. If resources are cached the extension won't be able to inject CSP HTTP headers and collect CSP information.
+To get accurate results be sure to clear your browsers cache of any site for which you want to collect CSP rules. If resources are cached the extension won't be able to inject CSP HTTP headers and collect CSP information. Also be sure to visit your site in all the browsers you care about in that same Fiddler session. All browser's results will be incorporated into the one CSP rule in that Fiddler session. Different browsers may violate different CSP rules due to different feature support resulting in different HTTP requests so be sure to check each browser.
