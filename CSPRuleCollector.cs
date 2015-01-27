@@ -15,6 +15,12 @@ namespace FiddlerCSP
 
         public delegate void RuleAddedOrModified(string uri, string rule);
         public event RuleAddedOrModified OnRuleAddedOrModified;
+        private ILogger logger;
+
+        public CSPRuleCollector(ILogger logger)
+        {
+            this.logger = logger;
+        }
 
         public string Get(string documentUri)
         {
@@ -124,15 +130,15 @@ namespace FiddlerCSP
         {
             if (cspReport.cspReport.blockedUri == null)
             {
-                FiddlerExtension.Log("Invalid CSP Report - missing blocked-uri property.");
+                logger.Log("Invalid CSP Report - missing blocked-uri property.");
             }
             else if (cspReport.cspReport.documentUri == null)
             {
-                FiddlerExtension.Log("Invalid CSP Report - missing document-uri property.");
+                logger.Log("Invalid CSP Report - missing document-uri property.");
             }
             else if (cspReport.cspReport.violatedDirective == null && cspReport.cspReport.effectiveDirective == null)
             {
-                FiddlerExtension.Log("Invalid CSP Report - missing violated-directive and effective-directive properties.");
+                logger.Log("Invalid CSP Report - missing violated-directive and effective-directive properties.");
             }
             else
             {

@@ -26,15 +26,25 @@ namespace FiddlerCSP
             }
         }
 
-        public static string reportHost = "fiddlercsp.deletethis.net";
-        private CSPRuleCollector collector = new CSPRuleCollector();
-
-        public static void Log(string message)
+        public class FiddlerAppLogger : ILogger
         {
-            if (Settings.verboseLogging)
+            public void Log(string message)
             {
-                FiddlerApplication.Log.LogString("FiddlerCSP: " + message);
+                if (Settings.verboseLogging)
+                {
+                    FiddlerApplication.Log.LogString("FiddlerCSP: " + message);
+                }
             }
+        }
+
+        public static string reportHost = "fiddlercsp.deletethis.net";
+        private ILogger logger;
+        private CSPRuleCollector collector;
+
+        public FiddlerExtension()
+        {
+            logger = new FiddlerAppLogger();
+            collector = new CSPRuleCollector(logger);
         }
 
         public void OnPeekAtRequestHeaders(Session oSession) { }
@@ -57,19 +67,24 @@ namespace FiddlerCSP
                     string requestBody = session.GetRequestBodyAsString();
                     if (requestBody != null && requestBody.Length > 0)
                     {
-                        CSPReport cspReport = CSPReport.TryParse(requestBody);
-                        if (cspReport != null)
+                        try 
                         {
+                            CSPReport cspReport = CSPReport.Parse(requestBody);
                             if (cspReport.cspReport != null && cspReport.cspReport.documentUri != null)
                             {
-                                Log("Got report for " + cspReport.cspReport.documentUri + " via " + session.fullUrl);
+                                logger.Log("Got report for " + cspReport.cspReport.documentUri + " via " + session.fullUrl);
                             }
-                            Log("Adding " + cspReport.ToString());
+
+                            logger.Log("Adding " + cspReport.ToString());
                             collector.Add(cspReport, session.PathAndQuery == "/unsafe-eval" ?
                                 CSPRuleCollector.InterpretBlank.UnsafeEval : CSPRuleCollector.InterpretBlank.UnsafeInline);
-                            Log("Total " + collector.ToString());
+                            logger.Log("Total " + collector.ToString());
 
                             handled = true;
+                        }
+                        catch (Exception exception)
+                        {
+                            logger.Log("Invalid CSP - " + exception);
                         }
                     }
                 }
@@ -104,7 +119,7 @@ namespace FiddlerCSP
                 session.oResponse.headers.Remove("Expires");
                 session.oResponse.headers.Add("Expires", "Thu, 01 Dec 1983 20:00:00 GMT");
 
-                Log("Adding report-only to " + session.fullUrl);
+                logger.Log("Adding report-only to " + session.fullUrl);
             }
         }
 

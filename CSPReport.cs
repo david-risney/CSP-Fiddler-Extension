@@ -15,7 +15,7 @@ namespace FiddlerCSP
     [DataContract]
     public class CSPReport
     {
-        public static CSPReport TryParse(Stream postData)
+        public static CSPReport Parse(Stream postData)
         {
             try
             {
@@ -24,14 +24,13 @@ namespace FiddlerCSP
             catch (Exception exception)
             {
                 string postDataAsString = new StreamReader(postData).ReadToEnd();
-                FiddlerExtension.Log("Invalid CSP Report - JSON: " + postDataAsString + " exception: " + exception);
-                return null;
+                throw new Exception("Invalid CSP Report - JSON: " + postDataAsString + " exception: " + exception, exception);
             }
         }
 
-        public static CSPReport TryParse(string postData)
+        public static CSPReport Parse(string postData)
         {
-            return TryParse(new MemoryStream(Encoding.UTF8.GetBytes(postData)));
+            return Parse(new MemoryStream(Encoding.UTF8.GetBytes(postData)));
         }
 
         public override string ToString() 
