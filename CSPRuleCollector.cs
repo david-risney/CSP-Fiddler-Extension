@@ -122,20 +122,32 @@ namespace FiddlerCSP
 
         public void Add(CSPReport cspReport, InterpretBlank blankIs)
         {
-            if (!(cspReport.cspReport.blockedUri == null ||
-                cspReport.cspReport.documentUri == null ||
-                (cspReport.cspReport.violatedDirective == null && cspReport.cspReport.effectiveDirective == null)))
+            if (cspReport.cspReport.blockedUri == null)
+            {
+                FiddlerExtension.Log("Invalid CSP Report - missing blocked-uri property.");
+            }
+            else if (cspReport.cspReport.documentUri == null)
+            {
+                FiddlerExtension.Log("Invalid CSP Report - missing document-uri property.");
+            }
+            else if (cspReport.cspReport.violatedDirective == null && cspReport.cspReport.effectiveDirective == null)
+            {
+                FiddlerExtension.Log("Invalid CSP Report - missing violated-directive and effective-directive properties.");
+            }
+            else
             {
                 string documentUri = cspReport.cspReport.documentUri;
                 string documentUriOrigin = UriOrigin(documentUri);
                 string directive = cspReport.cspReport.effectiveDirective == null ? cspReport.cspReport.violatedDirective : cspReport.cspReport.effectiveDirective;
                 string blockedUri = cspReport.cspReport.blockedUri;
+
                 if (blockedUri.Trim().Length == 0)
                 {
-                    // How to handle unsafe-eval? Might require a different report-uri and rule set.
+                    // A blank blocked-uri indicates either unsafe-inline or unsafe-eval. The caller tells us
+                    // which it is.
                     blockedUri = blankIs == InterpretBlank.UnsafeInline ? "'unsafe-inline'" : "'unsafe-eval'";
                 }
-                else if (blockedUri.IndexOf(":") >= 0)
+                else if (blockedUri.IndexOf(":") >= 0) // If there's a colon, assume its a URI.
                 {
                     blockedUri = UriWrtDocumentUri(UriOrigin(blockedUri), documentUriOrigin);
                 }
@@ -143,13 +155,12 @@ namespace FiddlerCSP
                 {
                     blockedUri = "'self'";
                 }
-                else
+                else // Lastly CSP reports may contain schemes with no delimiters just the scheme name.
                 {
-                    // Report can give out schemes with no delimiters or anything else.
                     blockedUri = blockedUri + ":";
                 }
 
-                // directive may be script-src or script-src none. We want just the first part.
+                // Directive might be something like script-src or script-src none. We want just the first part.
                 directive = directive.Split(' ')[0];
 
                 cacheLock.EnterWriteLock();
@@ -171,10 +182,6 @@ namespace FiddlerCSP
                 }
 
                 OnRuleAddedOrModified.Invoke(documentUri, Get(documentUri));
-            }
-            else
-            {
-                FiddlerExtension.Log("FiddlerCSP: Invalid cspreport: " + cspReport);
             }
         }
     }

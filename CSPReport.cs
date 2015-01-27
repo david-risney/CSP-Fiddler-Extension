@@ -21,10 +21,10 @@ namespace FiddlerCSP
             {
                 return (CSPReport)new DataContractJsonSerializer(typeof(CSPReport)).ReadObject(postData);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
                 string postDataAsString = new StreamReader(postData).ReadToEnd();
-                FiddlerExtension.Log("FiddlerCSP: Error parsing CSP report JSON: " + e + " for JSON: " + postDataAsString);
+                FiddlerExtension.Log("Invalid CSP Report - JSON: " + postDataAsString + " exception: " + exception);
                 return null;
             }
         }
@@ -37,13 +37,13 @@ namespace FiddlerCSP
         public override string ToString() 
         {
             return "{ csp-report: {\n" +
-                (cspReport.blockedUri != null ? "blocked-uri: " + cspReport.blockedUri + ",\n" : "") +
-                (cspReport.documentUri != null ? "document-uri: " + cspReport.documentUri + ",\n" : "") +
-                (cspReport.effectiveDirective != null ? "effective-directive: " + cspReport.effectiveDirective + ",\n" : "") +
-                (cspReport.originalPolicy != null ? "original-policy: " + cspReport.originalPolicy + ",\n" : "") +
-                (cspReport.referrer != null ? "referrer: " + cspReport.referrer + ",\n" : "") +
+                (cspReport.blockedUri != null ? "blocked-uri: \"" + cspReport.blockedUri + "\",\n" : "") +
+                (cspReport.documentUri != null ? "document-uri: \"" + cspReport.documentUri + "\",\n" : "") +
+                (cspReport.effectiveDirective != null ? "effective-directive: \"" + cspReport.effectiveDirective + "\",\n" : "") +
+                (cspReport.originalPolicy != null ? "original-policy: \"" + cspReport.originalPolicy + "\",\n" : "") +
+                (cspReport.referrer != null ? "referrer: \"" + cspReport.referrer + "\",\n" : "") +
                 (cspReport.statusCode != 0 ? "status-code: " + cspReport.statusCode + ",\n" : "") +
-                (cspReport.violatedDirective != null ? "violated-directive: " + cspReport.violatedDirective + ",\n" : "") +
+                (cspReport.violatedDirective != null ? "violated-directive: \"" + cspReport.violatedDirective + "\",\n" : "") +
                 "} }";
         }
 

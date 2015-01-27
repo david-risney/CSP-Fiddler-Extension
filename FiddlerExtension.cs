@@ -58,16 +58,19 @@ namespace FiddlerCSP
                     if (requestBody != null && requestBody.Length > 0)
                     {
                         CSPReport cspReport = CSPReport.TryParse(requestBody);
-                        if (cspReport != null && cspReport.cspReport != null && cspReport.cspReport.documentUri != null)
+                        if (cspReport != null)
                         {
-                            Log("Got report for " + cspReport.cspReport.documentUri);
-                        }
-                        Log("Adding " + cspReport.ToString());
-                        collector.Add(cspReport, session.PathAndQuery == "/unsafe-eval" ? 
-                            CSPRuleCollector.InterpretBlank.UnsafeEval : CSPRuleCollector.InterpretBlank.UnsafeInline);
-                        Log("Total " + collector.ToString());
+                            if (cspReport.cspReport != null && cspReport.cspReport.documentUri != null)
+                            {
+                                Log("Got report for " + cspReport.cspReport.documentUri + " via " + session.fullUrl);
+                            }
+                            Log("Adding " + cspReport.ToString());
+                            collector.Add(cspReport, session.PathAndQuery == "/unsafe-eval" ?
+                                CSPRuleCollector.InterpretBlank.UnsafeEval : CSPRuleCollector.InterpretBlank.UnsafeInline);
+                            Log("Total " + collector.ToString());
 
-                        handled = true;
+                            handled = true;
+                        }
                     }
                 }
 
@@ -87,7 +90,10 @@ namespace FiddlerCSP
                 // Use https report URI for https sites because otherwise Chrome won't report.
                 // Use http report URI for http sites because Fiddler might not be configured to MitM https.
                 string reportUri = (session.isHTTPS ? "https" : "http") + "://" + reportHost;
+                // child-src generates a complaint in FireFox as apparently it isn't implemented.
                 string CSPROCommon = "child-src 'none'; connect-src 'none'; font-src 'none'; frame-src 'none'; img-src 'none'; media-src 'none'; object-src 'none'; style-src 'none'; ";
+                // Two different CSP-Report-Only headers with different report URIs so that we can tell the difference between unsafe-eval and unsafe-inline since they're
+                // both reported as empty string blocked-uri properties. Sort of a CSP spec problem.
                 session.oResponse.headers.Add("Content-Security-Policy-Report-Only", CSPROCommon + "script-src 'unsafe-eval'; report-uri " + reportUri + "/unsafe-inline");
                 session.oResponse.headers.Add("Content-Security-Policy-Report-Only", "script-src 'unsafe-inline'; report-uri " + reportUri + "/unsafe-eval");
                 session.oResponse.headers.Add("X-Fiddled-With-By", "FiddlerCSP");
