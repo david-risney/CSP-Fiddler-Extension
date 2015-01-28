@@ -9,7 +9,7 @@ using Fiddler;
 [assembly: Fiddler.RequiredVersion("4.4.9.3")]
 namespace FiddlerCSP
 {
-    public class FiddlerExtension : IAutoTamper3
+    public class FiddlerExtension : IAutoTamper3, IDisposable
     {
         public static class Settings
         {
@@ -146,6 +146,17 @@ namespace FiddlerCSP
             ruleCollectionView.Dock = DockStyle.Fill;
             page.Controls.Add(ruleCollectionView);
             FiddlerApplication.UI.tabsViews.TabPages.Add(page);
+        }
+
+        private void Dispose(bool managedAndNative)
+        {
+            collector.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

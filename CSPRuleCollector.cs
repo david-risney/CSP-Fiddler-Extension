@@ -8,12 +8,13 @@ using Fiddler;
 
 namespace FiddlerCSP
 {
-    public class CSPRuleCollector
+    public class CSPRuleCollector : IDisposable
     {
         private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
         private Dictionary<string, Dictionary<string, HashSet<string>>> rules = new Dictionary<string, Dictionary<string, HashSet<string>>>();
 
         public delegate void RuleAddedOrModified(string uri, string rule);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event RuleAddedOrModified OnRuleAddedOrModified;
         private ILogger logger;
 
@@ -191,6 +192,17 @@ namespace FiddlerCSP
                     OnRuleAddedOrModified.Invoke(documentUri, Get(documentUri));
                 }
             }
+        }
+
+        private void Dispose(bool manageAndNativeResources)
+        {
+            cacheLock.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
