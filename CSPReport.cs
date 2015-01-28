@@ -23,6 +23,7 @@ namespace FiddlerCSP
             }
             catch (Exception exception)
             {
+                postData.Seek(0, SeekOrigin.Begin);
                 string postDataAsString = new StreamReader(postData).ReadToEnd();
                 throw new Exception("Invalid CSP Report - JSON: " + postDataAsString + " exception: " + exception, exception);
             }
