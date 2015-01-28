@@ -186,8 +186,10 @@ namespace FiddlerCSP
                 {
                     cacheLock.ExitWriteLock();
                 }
-
-                OnRuleAddedOrModified.Invoke(documentUri, Get(documentUri));
+                if (OnRuleAddedOrModified != null)
+                {
+                    OnRuleAddedOrModified.Invoke(documentUri, Get(documentUri));
+                }
             }
         }
     }
