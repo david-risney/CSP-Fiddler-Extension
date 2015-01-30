@@ -34,6 +34,7 @@
             this.URI = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ContentSecurityPolicy = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SelectedRuleText = new System.Windows.Forms.TextBox();
+            this.lnkHelp = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // EnableRuleCollectionCheckBox
@@ -41,18 +42,18 @@
             this.EnableRuleCollectionCheckBox.AutoSize = true;
             this.EnableRuleCollectionCheckBox.Location = new System.Drawing.Point(3, 3);
             this.EnableRuleCollectionCheckBox.Name = "EnableRuleCollectionCheckBox";
-            this.EnableRuleCollectionCheckBox.Size = new System.Drawing.Size(140, 21);
+            this.EnableRuleCollectionCheckBox.Size = new System.Drawing.Size(133, 17);
             this.EnableRuleCollectionCheckBox.TabIndex = 0;
             this.EnableRuleCollectionCheckBox.Text = "Enable Rule Collection";
             this.EnableRuleCollectionCheckBox.UseVisualStyleBackColor = true;
-            this.EnableRuleCollectionCheckBox.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.EnableRuleCollectionCheckBox.CheckedChanged += new System.EventHandler(this.EnableRuleCollectionCheckBox_CheckedChanged);
             // 
             // VerboseLoggingCheckBox
             // 
             this.VerboseLoggingCheckBox.AutoSize = true;
             this.VerboseLoggingCheckBox.Location = new System.Drawing.Point(4, 31);
             this.VerboseLoggingCheckBox.Name = "VerboseLoggingCheckBox";
-            this.VerboseLoggingCheckBox.Size = new System.Drawing.Size(113, 21);
+            this.VerboseLoggingCheckBox.Size = new System.Drawing.Size(106, 17);
             this.VerboseLoggingCheckBox.TabIndex = 1;
             this.VerboseLoggingCheckBox.Text = "Verbose Logging";
             this.VerboseLoggingCheckBox.UseVisualStyleBackColor = true;
@@ -96,10 +97,23 @@
             this.SelectedRuleText.Size = new System.Drawing.Size(517, 204);
             this.SelectedRuleText.TabIndex = 3;
             // 
+            // lnkHelp
+            // 
+            this.lnkHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lnkHelp.AutoSize = true;
+            this.lnkHelp.Location = new System.Drawing.Point(466, 7);
+            this.lnkHelp.Name = "lnkHelp";
+            this.lnkHelp.Size = new System.Drawing.Size(38, 13);
+            this.lnkHelp.TabIndex = 4;
+            this.lnkHelp.TabStop = true;
+            this.lnkHelp.Text = "Help...";
+            this.lnkHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHelp_LinkClicked);
+            // 
             // RuleCollectionView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lnkHelp);
             this.Controls.Add(this.SelectedRuleText);
             this.Controls.Add(this.RuleCollectionListView);
             this.Controls.Add(this.VerboseLoggingCheckBox);
@@ -120,5 +134,6 @@
         private System.Windows.Forms.ColumnHeader URI;
         private System.Windows.Forms.ColumnHeader ContentSecurityPolicy;
         private System.Windows.Forms.TextBox SelectedRuleText;
+        private System.Windows.Forms.LinkLabel lnkHelp;
     }
 }
