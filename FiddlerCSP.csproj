@@ -35,9 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Fiddler">
-      <HintPath>..\..\..\Program Files (x86)\Fiddler2\Fiddler.exe</HintPath>
-      <Private>False</Private>
+    <Reference Include="Fiddler, Version=2.4.9.7, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Fiddler2\Fiddler.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

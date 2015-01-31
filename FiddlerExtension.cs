@@ -25,7 +25,7 @@ namespace FiddlerCSP
             }
         }
 
-        public class FiddlerAppLogger : ILogger
+        private class FiddlerAppLogger : ILogger
         {
             public void Log(string message)
             {
@@ -52,23 +52,28 @@ namespace FiddlerCSP
 
         public void AutoTamperRequestBefore(Session session)
         {
-            if (!Settings.enabled) return;
-
-            if (!session.HostnameIs(reportHost) || session.isFTP) return;
-
-            // TODO: We should offer an option to hide the reports from Fiddler; change "ui-strikeout" to "ui-hide" in the next line
-            session["ui-strikeout"] = "CSPReportGenerator";
-
-            if (session.HTTPMethodIs("CONNECT"))
+            if (Settings.enabled && session.HostnameIs(reportHost) && !session.isFTP)
             {
-                session["x-replywithtunnel"] = "CSPReportGenerator";
-                return;
+                // TODO: We should offer an option to hide the reports from Fiddler; change "ui-strikeout" to "ui-hide" in the next line
+                session["ui-strikeout"] = "CSPReportGenerator";
+
+                if (!session.HTTPMethodIs("CONNECT"))
+                {
+                    session.utilCreateResponseAndBypassServer();
+                    session.oResponse.headers.Add("Content-Type", "text/html");
+                    session.ResponseBody = Encoding.UTF8.GetBytes("<!doctype html><HTML><BODY><H1>Report received.</H1></BODY></HTML>");
+
+                    ProcessCSPReport(session);
+                }
+                else
+                {
+                    session["x-replywithtunnel"] = "CSPReportGenerator";
+                }
             }
+        }
 
-            session.utilCreateResponseAndBypassServer();
-            session.oResponse.headers.Add("Content-Type", "text/html");
-            session.ResponseBody = Encoding.UTF8.GetBytes("<!doctype html><HTML><BODY><H1>Report received. Thanks. You're the best.</H1></BODY></HTML>");
-
+        private void ProcessCSPReport(Session session)
+        {
             string requestBody = session.GetRequestBodyAsString();
             if (requestBody.Length > 0)
             {
@@ -96,9 +101,7 @@ namespace FiddlerCSP
 
         public void AutoTamperResponseBefore(Session session)
         {
-            if (!Settings.enabled) return;
-
-            if (!session.isTunnel && !session.isFTP)
+            if (!Settings.enabled && !session.isTunnel && !session.isFTP)
             {
                 // Use https report URI for https sites because otherwise Chrome won't report.
                 // Use http report URI for http sites because Fiddler might not be configured to MitM https.
@@ -139,15 +142,15 @@ namespace FiddlerCSP
             FiddlerApplication.UI.tabsViews.TabPages.Add(page);
         }
 
-        private void Dispose(bool managedAndNative)
-        {
-            collector.Dispose();
-        }
-
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool managedAndNative)
+        {
+            collector.Dispose();
         }
     }
 }

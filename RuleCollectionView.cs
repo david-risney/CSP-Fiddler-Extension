@@ -14,9 +14,9 @@ namespace FiddlerCSP
     {
         private CSPRuleCollector collector;
 
-        public RuleCollectionView(CSPRuleCollector collectorIn)
+        public RuleCollectionView(CSPRuleCollector collector)
         {
-            collector = collectorIn;
+            this.collector = collector;
             collector.OnRuleAddedOrModified += AddToListViewOnUIThread;
 
             InitializeComponent();
@@ -26,13 +26,15 @@ namespace FiddlerCSP
         {
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.MenuItems.Add("Copy", new EventHandler(delegate(object o, EventArgs copyEventArgs) {
-                if (RuleCollectionListView.SelectedItems.Count < 1) return;
-                StringBuilder sbToCopy = new StringBuilder();
-                foreach (ListViewItem item in RuleCollectionListView.SelectedItems)
+                if (RuleCollectionListView.SelectedItems.Count > 0)
                 {
-                    sbToCopy.AppendFormat("{0} {1}\n", item.Text, item.SubItems[1].Text);
+                    StringBuilder sbToCopy = new StringBuilder();
+                    foreach (ListViewItem item in RuleCollectionListView.SelectedItems)
+                    {
+                        sbToCopy.AppendFormat("{0} {1}\n", item.Text, item.SubItems[1].Text);
+                    }
+                    Clipboard.SetText(sbToCopy.ToString());
                 }
-                Clipboard.SetText(sbToCopy.ToString());
             }));
             RuleCollectionListView.ContextMenu = contextMenu;
 
@@ -45,17 +47,16 @@ namespace FiddlerCSP
         void RuleCollectionListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             string[] uris = e.Item.ListView.SelectedItems.Cast<ListViewItem>().Where(x => x != null).Select(x => x.Text).ToArray();
+            string result = "";
+
             if (uris.Count() > 0)
             {
                 string rule = collector.Get(uris);
-
                 string formattedRule = rule.Replace("Content-Security-Policy: ", "").Replace("; ", "\r\n\r\n").Replace(" ", "\r\n\t");
-                SelectedRuleText.Text = "Document: " + uris.Aggregate((l, r) => l + " " + r) + "\r\n\r\n" + rule + "\r\n\r\n" + formattedRule;
+                result = "Document: " + uris.Aggregate((l, r) => l + " " + r) + "\r\n\r\n" + rule + "\r\n\r\n" + formattedRule;
             }
-            else
-            {
-                SelectedRuleText.Text = "";
-            }
+
+            SelectedRuleText.Text = result;    
         }
 
         private delegate void AddToListView(string uri, string rule);

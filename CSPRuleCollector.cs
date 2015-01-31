@@ -24,21 +24,7 @@ namespace FiddlerCSP
 
         public string Get(string documentUri)
         {
-            string prefix = "Content-Security-Policy: default-src 'none'";
-            string result = "";
-            cacheLock.EnterReadLock();
-            try
-            {
-                result = rules[documentUri].OrderBy(x => x.Key).Select(entry => (
-                    entry.Value.OrderBy(x => x).Aggregate(entry.Key, (total, next) => (total + " " + next))
-                    )).Aggregate(prefix, (total, next) => (total + "; " + next));
-            }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
-
-            return result;
+            return Get(new string[] { documentUri });
         }
 
         public string Get(string[] documentUris)
@@ -226,15 +212,15 @@ namespace FiddlerCSP
             }
         }
 
-        private void Dispose(bool manageAndNativeResources)
-        {
-            cacheLock.Dispose();
-        }
-
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool manageAndNativeResources)
+        {
+            cacheLock.Dispose();
         }
     }
 }
