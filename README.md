@@ -22,11 +22,10 @@ After installing:
  * Go back to the 'CSP Rule Collector' tab.
  * Select the URI of the document you visited to see its CSP rules.
 
-Do not leave the 'Enable Rule Collection' checkbox checked. While checked the extension will make web responses non-cachable in your browser and injects CSP HTTP headers that will result in possibly many developer console errors.
-
 For best results:
  * Clear your browser's cache of any site for which you want to collect CSP rules. If resources are cached the extension won't be able to inject CSP HTTP headers and collect CSP information.
  * Visit your site in all the browsers that support CSP that you care about in the same Fiddler session. All browsers' results will be incorporated into one CSP rule for a particluar web page. Different browsers may violate different CSP rules due to different feature support resulting in different HTTP requests so be sure to check each browser.
+ * Do not leave the 'Enable Rule Collection' checkbox checked when not intending to gather CSP rules. While enabled the extension will make web responses non-cachable in your browser and injects CSP HTTP headers that will result in possibly many developer console errors.
 
 ## How does it work?
 The extension adds mock `Content-Security-Policy-Report-Only` headers to servers' responses. For instance:
