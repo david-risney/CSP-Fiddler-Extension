@@ -1,8 +1,10 @@
 # CSP-Fiddler-Extension
-Content Security Policy rule collector extension for Fiddler.
+Content Security Policy rule collector extension for Fiddler helps you produce a strong CSP for a web page.
 
 ## What's this?
-This is an extension for [Fiddler](http://www.telerik.com/fiddler) that helps you produce the most restrictive set of [Content-Security-Policy](https://docs.webplatform.org/wiki/tutorials/content-security-policy) rules for web pages for which the web pages won't violate that policy. Install the extension, turn it on, navigate to web pages using a browser that supports CSP, and view the CSP rules that the extension generates.
+Use this extension to add a CSP header to your page, or tighten up your existing CSP header.
+
+This is an extension for [Fiddler](http://www.telerik.com/fiddler) that gives you the most restrictive  [Content-Security-Policy](https://docs.webplatform.org/wiki/tutorials/content-security-policy) for a web page but that won't generate any errors for that web page. Install the extension, turn it on, navigate to web pages using a browser that supports CSP, and view the CSP rules that the extension generates.
 
 ## Install
 Win+R, powershell.exe and enter the following into the PowerShell prompt:
@@ -24,7 +26,7 @@ Do not leave the 'Enable Rule Collection' checkbox checked. While checked the ex
 
 For best results:
  * Clear your browser's cache of any site for which you want to collect CSP rules. If resources are cached the extension won't be able to inject CSP HTTP headers and collect CSP information.
- * Visit your site in all the browsers that support CSP that you care about in the same Fiddler session. All browsers' results will be incorporated into one CSP rule for a particluar page. Different browsers may violate different CSP rules due to different feature support resulting in different HTTP requests so be sure to check each browser.
+ * Visit your site in all the browsers that support CSP that you care about in the same Fiddler session. All browsers' results will be incorporated into one CSP rule for a particluar web page. Different browsers may violate different CSP rules due to different feature support resulting in different HTTP requests so be sure to check each browser.
 
 ## How does it work?
 The extension adds mock `Content-Security-Policy-Report-Only` headers to servers' responses. For instance:
