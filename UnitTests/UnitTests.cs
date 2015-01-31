@@ -28,7 +28,7 @@ namespace FiddlerCSP
 
             foreach (var cspReport in cspReportsUnsafeInline.Select(cspReportAsString => CSPReport.Parse(cspReportAsString)))
             {
-                collector.Add(cspReport, CSPRuleCollector.InterpretBlank.UnsafeInline);                
+                collector.Add(cspReport, CSPRuleCollector.InterpretBlank.UnsafeInline);
             }
             foreach (var cspReport in cspReportsUnsafeEval.Select(cspReportAsString => CSPReport.Parse(cspReportAsString)))
             {

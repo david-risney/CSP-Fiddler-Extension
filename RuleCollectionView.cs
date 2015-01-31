@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Fiddler;
 
@@ -27,12 +26,13 @@ namespace FiddlerCSP
         {
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.MenuItems.Add("Copy", new EventHandler(delegate(object o, EventArgs copyEventArgs) {
-                string text = "";
+                if (RuleCollectionListView.SelectedItems.Count < 1) return;
+                StringBuilder sbToCopy = new StringBuilder();
                 foreach (ListViewItem item in RuleCollectionListView.SelectedItems)
                 {
-                    text += item.Text + " " + item.SubItems[1].Text + "\n";
+                    sbToCopy.AppendFormat("{0} {1}\n", item.Text, item.SubItems[1].Text);
                 }
-                Clipboard.SetText(text);
+                Clipboard.SetText(sbToCopy.ToString());
             }));
             RuleCollectionListView.ContextMenu = contextMenu;
 
@@ -90,14 +90,19 @@ namespace FiddlerCSP
             }
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void VerboseLoggingCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            FiddlerExtension.Settings.verboseLogging = VerboseLoggingCheckBox.Checked;
+        }
+
+        private void EnableRuleCollectionCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             FiddlerExtension.Settings.enabled = EnableRuleCollectionCheckBox.Checked;
         }
 
-        private void VerboseLoggingCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void lnkHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            FiddlerExtension.Settings.verboseLogging = VerboseLoggingCheckBox.Checked;
+            Utilities.LaunchHyperlink("https://github.com/david-risney/CSP-Fiddler-Extension");
         }
     }
 }
