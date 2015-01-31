@@ -33,3 +33,8 @@ The extension adds mock `Content-Security-Policy-Report-Only` headers to servers
     Content-Security-Policy-Report-Only: child-src 'none'; connect-src 'none'; font-src 'none'; frame-src 'none'; img-src 'none'; media-src 'none'; object-src 'none'; style-src 'none'; script-src 'unsafe-eval'; report-uri https://fiddlercsp.deletethis.net/unsafe-inline
 
 It then watches for the browser to report errors to the specified `report-uri` and uses those reports to generate the most restrictive CSP that allows through all issues described in the reports.
+
+## Other
+ * [MIT Licensed](https://github.com/david-risney/CSP-Fiddler-Extension/blob/master/LICENSE)
+ * [TIL](https://github.com/david-risney/CSP-Fiddler-Extension/blob/master/Lessons.md)
+
