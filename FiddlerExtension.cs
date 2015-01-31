@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Fiddler;
 
-[assembly: Fiddler.RequiredVersion("4.4.9.3")]
+[assembly: Fiddler.RequiredVersion("2.4.9.3")]
 namespace FiddlerCSP
 {
     public class FiddlerExtension : IAutoTamper3, IDisposable
@@ -53,45 +52,42 @@ namespace FiddlerCSP
 
         public void AutoTamperRequestBefore(Session session)
         {
-            if (!session.isTunnel && !session.isFTP)
+            if (!Settings.enabled) return;
+
+            if (!session.HostnameIs(reportHost) || session.isFTP) return;
+
+            // TODO: We should offer an option to hide the reports from Fiddler; change "ui-strikeout" to "ui-hide" in the next line
+            session["ui-strikeout"] = "CSPReportGenerator";
+
+            if (session.HTTPMethodIs("CONNECT"))
             {
-                bool handled = false;
-                if (session.oRequest.host == reportHost && Settings.enabled)
-                {
-                    // Not sure the best way to handle these report URI requests. They are real requests from the browser but
-                    // only generated because of this extension. Not sure if should be hidden from Fiddler's view or marked specially.
-                    session.utilCreateResponseAndBypassServer();
-                    session.oResponse.headers.Add("Content-Type", "text/html");
-                    session.ResponseBody = Encoding.UTF8.GetBytes("<!doctype html><HTML><BODY><H1>Report received. Thanks. You're the best.</H1></BODY></HTML>");
+                session["x-replywithtunnel"] = "CSPReportGenerator";
+                return;
+            }
 
-                    string requestBody = session.GetRequestBodyAsString();
-                    if (requestBody != null && requestBody.Length > 0)
+            session.utilCreateResponseAndBypassServer();
+            session.oResponse.headers.Add("Content-Type", "text/html");
+            session.ResponseBody = Encoding.UTF8.GetBytes("<!doctype html><HTML><BODY><H1>Report received. Thanks. You're the best.</H1></BODY></HTML>");
+
+            string requestBody = session.GetRequestBodyAsString();
+            if (requestBody.Length > 0)
+            {
+                try
+                {
+                    CSPReport cspReport = CSPReport.Parse(requestBody);
+                    if (cspReport.cspReport != null && cspReport.cspReport.documentUri != null)
                     {
-                        try 
-                        {
-                            CSPReport cspReport = CSPReport.Parse(requestBody);
-                            if (cspReport.cspReport != null && cspReport.cspReport.documentUri != null)
-                            {
-                                logger.Log("Got report for " + cspReport.cspReport.documentUri + " via " + session.fullUrl);
-                            }
-
-                            logger.Log("Adding " + cspReport.ToString());
-                            collector.Add(cspReport, session.PathAndQuery == "/unsafe-eval" ?
-                                CSPRuleCollector.InterpretBlank.UnsafeEval : CSPRuleCollector.InterpretBlank.UnsafeInline);
-                            logger.Log("Total " + collector.ToString());
-
-                            handled = true;
-                        }
-                        catch (Exception exception)
-                        {
-                            logger.Log("Invalid CSP - " + exception);
-                        }
+                        logger.Log("Got report for " + cspReport.cspReport.documentUri + " via " + session.fullUrl);
                     }
-                }
 
-                if (!handled)
+                    logger.Log("Adding " + cspReport.ToString());
+                    collector.Add(cspReport, session.PathAndQuery == "/unsafe-eval" ?
+                        CSPRuleCollector.InterpretBlank.UnsafeEval : CSPRuleCollector.InterpretBlank.UnsafeInline);
+                    logger.Log("Total " + collector.ToString());
+                }
+                catch (Exception exception)
                 {
-                    session.bBufferResponse = true;
+                    logger.Log("Invalid CSP - " + exception);
                 }
             }
         }
@@ -100,7 +96,9 @@ namespace FiddlerCSP
 
         public void AutoTamperResponseBefore(Session session)
         {
-            if (!session.isTunnel && !session.isFTP && Settings.enabled)
+            if (!Settings.enabled) return;
+
+            if (!session.isTunnel && !session.isFTP)
             {
                 // Use https report URI for https sites because otherwise Chrome won't report.
                 // Use http report URI for http sites because Fiddler might not be configured to MitM https.
@@ -129,14 +127,7 @@ namespace FiddlerCSP
 
         public void OnLoad()
         {
-            FiddlerApplication.OnValidateServerCertificate += OnValidateServerCertificate;
             AddTab();
-        }
-
-        private void OnValidateServerCertificate(object sender, ValidateServerCertificateEventArgs e)
-        {
-            // Ignore cert errors for the made up report host.
-            e.ValidityState = (e.ExpectedCN == reportHost) ? CertificateValidity.ForceValid : e.ValidityState;
         }
 
         private void AddTab()
