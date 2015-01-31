@@ -44,10 +44,18 @@ namespace FiddlerCSP
 
         void RuleCollectionListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            string uri = e.Item.Text;
-            string rule = e.Item.SubItems[1].Text;
-            string formattedRule = rule.Replace("Content-Security-Policy: ", "").Replace("; ", "\r\n\r\n").Replace(" ", "\r\n\t");
-            SelectedRuleText.Text = "Document: " + uri + "\r\n\r\n" + rule + "\r\n\r\n" + formattedRule;
+            string[] uris = e.Item.ListView.SelectedItems.Cast<ListViewItem>().Where(x => x != null).Select(x => x.Text).ToArray();
+            if (uris.Count() > 0)
+            {
+                string rule = collector.Get(uris);
+
+                string formattedRule = rule.Replace("Content-Security-Policy: ", "").Replace("; ", "\r\n\r\n").Replace(" ", "\r\n\t");
+                SelectedRuleText.Text = "Document: " + uris.Aggregate((l, r) => l + " " + r) + "\r\n\r\n" + rule + "\r\n\r\n" + formattedRule;
+            }
+            else
+            {
+                SelectedRuleText.Text = "";
+            }
         }
 
         private delegate void AddToListView(string uri, string rule);

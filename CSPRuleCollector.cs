@@ -42,6 +42,39 @@ namespace FiddlerCSP
             return result;
         }
 
+        public string Get(string[] documentUris)
+        {
+            string prefix = "Content-Security-Policy: default-src 'none'";
+            string result = "";
+            cacheLock.EnterReadLock();
+            try
+            {
+                var dictsToMerge = rules.Where(x => documentUris.Contains(x.Key)).Select(x => x.Value);
+                var mergedDict = new Dictionary<string, HashSet<string>>();
+                foreach (var dict in dictsToMerge)
+                {
+                    foreach (var e in dict)
+                    {
+                        if (!mergedDict.ContainsKey(e.Key))
+                        {
+                            mergedDict[e.Key] = new HashSet<string>();
+                        }
+                        mergedDict[e.Key] = new HashSet<string>(mergedDict[e.Key].Concat(e.Value));
+                    }
+                }
+
+                result = mergedDict.OrderBy(x => x.Key).Select(entry => (
+                    entry.Value.OrderBy(x => x).Aggregate(entry.Key, (total, next) => (total + " " + next))
+                    )).Aggregate(prefix, (total, next) => (total + "; " + next));
+            }
+            finally
+            {
+                cacheLock.ExitReadLock();
+            }
+
+            return result;
+        }
+
         public override string ToString()
         {
             string result = "";
