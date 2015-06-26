@@ -9,7 +9,7 @@ This is an extension for [Fiddler](http://www.telerik.com/fiddler) that gives yo
 ## Install
 Win+R, powershell.exe and enter the following into the PowerShell prompt:
 
-    wget -uri http://david-risney.github.io/CSP-Fiddler-Extension/fiddlercsp.dll -OutFile (Join-Path (mkdir -Force ~\Documents\Fiddler2\Scripts) FiddlerCSP.dll)
+    wget -uri https://david-risney.github.io/CSP-Fiddler-Extension/fiddlercsp.dll -OutFile (Join-Path (mkdir -Force ~\Documents\Fiddler2\Scripts) FiddlerCSP.dll)
 
 Or if you want to put in more effort, clone this repo, build it, and copy the built FiddlerCSP.dll to your ~\Documents\Fiddler2\Scripts directory.
 
