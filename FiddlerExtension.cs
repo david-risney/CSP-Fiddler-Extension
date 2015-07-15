@@ -101,7 +101,7 @@ namespace FiddlerCSP
 
         public void AutoTamperResponseBefore(Session session)
         {
-            if (!Settings.enabled && !session.isTunnel && !session.isFTP)
+            if (Settings.enabled && !session.isTunnel && !session.isFTP)
             {
                 // Use https report URI for https sites because otherwise Chrome won't report.
                 // Use http report URI for http sites because Fiddler might not be configured to MitM https.
